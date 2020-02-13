@@ -11,33 +11,23 @@
       "schematics": {},
       "architect": {
         "build": {
-          "builder": "@angular-builders/custom-webpack:browser",
+          "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "customWebpackConfig": {
-              "path": "./custom-webpack.config.js"
-            },
             "outputPath": "dist/anywhere-anytime",
             "index": "src/index.html",
             "main": "src/main.ts",
             "polyfills": "src/polyfills.ts",
             "tsConfig": "src/tsconfig.app.json",
-            "aot": true,
             "assets": [
               "src/favicon.ico",
-              "src/manifest.json",
               "src/assets"
             ],
             "styles": [
               "src/styles.css"
             ],
-            "scripts": ["src/content.js"]
+            "scripts": []
           },
           "configurations": {
-            "dev": {
-              "customWebpackConfig": {
-                "path": "./custom-webpack-dev.config.js"
-              }
-            },
             "production": {
               "fileReplacements": [
                 {
@@ -58,11 +48,8 @@
           }
         },
         "serve": {
-          "builder": "@angular-builders/custom-webpack:dev-server",
+          "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "customWebpackConfig": {
-              "path": "./custom-webpack.config.js"
-            },
             "browserTarget": "anywhere-anytime:build"
           },
           "configurations": {

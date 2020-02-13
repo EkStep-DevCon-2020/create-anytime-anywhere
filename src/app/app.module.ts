@@ -1,16 +1,14 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
-import { RouterModule } from '@angular/router';
+
 import { AppComponent } from './app.component';
-import { PdfGenerationComponent } from './components/pdf-generation/pdf-generation.component';
 
 @NgModule({
   declarations: [
-    AppComponent,
-    PdfGenerationComponent
+    AppComponent
   ],
   imports: [
-    BrowserModule, RouterModule
+    BrowserModule
   ],
   providers: [],
   bootstrap: [AppComponent]
