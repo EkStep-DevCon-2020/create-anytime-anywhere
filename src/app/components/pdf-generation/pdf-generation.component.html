@@ -1,6 +1,6 @@
-<button class="ui primary button" (click)="read()">Convert to pdf</button>
+<button *ngIf="!isLoading" class="ui primary button" (click)="read()">Create content</button>
 
 
-<div [innerHTML]="parsedContent"></div>
+<div *ngIf="!isLoading" [innerHTML]="parsedContent"></div>
 
 <div *ngIf="isLoading">Loading...</div>

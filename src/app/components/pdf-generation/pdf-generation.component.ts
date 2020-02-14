@@ -17,7 +17,7 @@ export class PdfGenerationComponent implements OnInit {
   }
 
   public read() {
-
+    this.isLoading = true;
     this.getCurrentActiveTabUrl();
   }
 
@@ -42,6 +42,7 @@ export class PdfGenerationComponent implements OnInit {
 
   public setContent(content) {
     this.parsedContent = content;
+    this.isLoading = false;
     this.ref.detectChanges();
   }
 

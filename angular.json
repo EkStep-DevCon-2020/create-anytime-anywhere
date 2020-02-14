@@ -28,11 +28,12 @@
               "src/assets"
             ],
             "styles": [
-              "src/styles.css",
-              "src/assets/styles/semantic/semantic.min.css"
+              "src/assets/styles/semantic/semantic.min.css",
+              "src/assets/styles/styles.css"
             ],
             "scripts": [
               "src/content.js",
+              "node_modules/jquery/dist/jquery.min.js",
               "src/assets/libs/semantic.min.js"
             ]
           },
