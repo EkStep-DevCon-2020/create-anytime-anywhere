@@ -1,5 +1,6 @@
-<button (click)="read()">Convert to pdf</button>
+<button class="ui primary button" (click)="read()">Convert to pdf</button>
 
 
 <div [innerHTML]="parsedContent"></div>
 
+<div *ngIf="isLoading">Loading...</div>

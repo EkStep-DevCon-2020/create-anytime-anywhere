@@ -10,12 +10,14 @@ export class PdfGenerationComponent implements OnInit {
 
   public url: any;
   public parsedContent: any;
+  public isLoading: Boolean = false;
   constructor(private ref: ChangeDetectorRef) { }
 
   ngOnInit() {
   }
 
   public read() {
+
     this.getCurrentActiveTabUrl();
   }
 
