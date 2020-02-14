@@ -26,7 +26,11 @@
     "storage",
     "cookies"
   ],
-  "page_action": {
+  // "page_action": {
+  //   "default_popup": "index.html",
+  //   "default_icon": "assets/icon-new.png"
+  // },
+  "browser_action": {
     "default_popup": "index.html",
     "default_icon": "assets/icon-new.png"
   },

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import Mercury from '@postlight/mercury-parser';
 
 @Component({
@@ -8,29 +8,39 @@ import Mercury from '@postlight/mercury-parser';
 })
 export class PdfGenerationComponent implements OnInit {
 
-  public url = 'https://trackchanges.postlight.com/building-awesome-cms-f034344d8ed';
-  constructor() { }
+  public url: any;
   public parsedContent: any;
+  constructor(private ref: ChangeDetectorRef) { }
 
   ngOnInit() {
-
-      chrome.runtime.onMessage.addListener(
-        function(request, sender, sendResponse) {
-          if ( request.message === 'all_urls_fetched' ) {
-
-          }
-        }
-      );
   }
 
   public read() {
+    this.getCurrentActiveTabUrl();
+  }
 
-    console.log('saddadd');
-    Mercury.parse(this.url)
+  public getCurrentActiveTabUrl() {
+    let url;
+    chrome.tabs.query({active: true, currentWindow: true}, (tabs: any)  => {
+      url = tabs[0].url;
+      this.getReadableContent(url);
+    });
+  }
+
+  public getReadableContent(url) {
+    if (url) {
+      Mercury.parse(url)
       .then((result: any) => {
-        console.log(result);
-        this.parsedContent = result.content;
+        this.setContent(result.content);
       });
+    } else {
+      this.parsedContent = 'Please try some other page';
+    }
+  }
+
+  public setContent(content) {
+    this.parsedContent = content;
+    this.ref.detectChanges();
   }
 
 }
