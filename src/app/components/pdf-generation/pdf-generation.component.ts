@@ -113,7 +113,7 @@ export class PdfGenerationComponent implements OnInit {
               title : 'content created successfully',
               subTitle: 'Click here to view content',
               url: `https://devcon.sunbirded.org/play/content/${data['result'].node_id}?contentType=Resource`
-            }
+            };
             console.log('successMsgs', this.successMsgs);
             this.ref.detectChanges();
           },
@@ -194,22 +194,13 @@ export class PdfGenerationComponent implements OnInit {
   }
 
   uploadFile(res) {
-
     const url = res['result'].pre_signed_url;
-    const blob = this.str2blob(this.parsedContent.content)
-    const file = new File([blob], this.parsedContent.title)
+    const blob = this.str2blob(this.parsedContent.content);
+    const file = new File([blob], this.parsedContent.title);
     const formData = new FormData();
-    formData.append('file', file)
+    formData.append('file', file);
 
     console.log('file', file);
-
-    const config = {
-      processData: false,
-      contentType: 'Asset',
-      headers: {
-        'x-ms-blob-type': 'BlockBlob'
-      }
-    };
 
     const httpOptions = {
       headers: new HttpHeaders({
@@ -229,13 +220,11 @@ export class PdfGenerationComponent implements OnInit {
   }
 
   str2blob(str) {
-    return new Blob([str], {type: 'text/html'})
+    return new Blob([str], {type: 'text/html'});
   }
 
-  openContent(e) {
-    // TODO
-    console.log('in openContent');
-    e.preventDefault();
+  openContent() {
+    chrome.tabs.create({ url: 'https://devcon.sunbirded.org/play/content/do_112959019966021632169?contentType=Resource' });
   }
 
 }

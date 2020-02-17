@@ -2,15 +2,11 @@
     <button *ngIf="!isLoading" class="ui primary button" (click)="read()">Create content</button>
 </div>
 
-
-
 <div *ngIf="!isLoading" [innerHTML]="parsedContent.content"></div>
 
 <div *ngIf="successMsgs">
     <h3>{{successMsgs.title}}</h3>
-    <p>
-        <a href="successMsgs.url" target="_blank" (click)="openContent()">{{successMsgs.subTitle}}</a>
-    </p>
+    <p (click)="openContent(successMsgs.url)" style="cursor: pointer;">{{successMsgs.subTitle}}</p>
 </div>
 
 <div *ngIf="isLoading">Loading...</div>
