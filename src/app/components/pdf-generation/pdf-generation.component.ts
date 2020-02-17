@@ -173,7 +173,6 @@ export class PdfGenerationComponent implements OnInit {
     .subscribe(
       (response: any) => {
         console.log('getPresignedUrl success', response);
-        // this.hitPresignedUrl(data);
         this.uploadFile(response);
       },
       error => console.log('oops getPresignedUrl', error)
@@ -206,10 +205,10 @@ export class PdfGenerationComponent implements OnInit {
   }
 
   getConvertedPdfUrl(fileUrl, contentId){
-    console.log('getConvertedPdfUrl', fileUrl);
+    console.log('fileUrl', fileUrl);
     const url = "http://11.2.6.6/print/v1/print/preview/generate";
-    // let body = new URLSearchParams();
-    // body.set('fileUrl', fileUrl);
+    // let params = new URLSearchParams();
+    // params.set('fileUrl', fileUrl);
     const httpOptions = {
       headers: new HttpHeaders({
         'contentType': 'application/json',
@@ -219,6 +218,7 @@ export class PdfGenerationComponent implements OnInit {
     const data = new FormData();
     data.append('fileUrl', fileUrl);
     
+    // this.http.post(url, '', params, httpOptions)
     this.http.post(url, data, httpOptions)
     .subscribe(
       (response: any) => {
@@ -231,7 +231,7 @@ export class PdfGenerationComponent implements OnInit {
 
   updateContentWithPDFURL(fileURL, contentId) {
     // const fileURLTest = "https://sunbirddev.blob.core.windows.net/sunbird-content-dev/print-service/26b4cf10-5162-11ea-9254-abb1d8cfed4e.pdf";
-    console.log('fileURL', fileURL);
+    console.log('getConvertedPdfUrl', fileURL);
     const data = new FormData();
     data.append('fileUrl', fileURL);
     data.append('mimeType', 'application/pdf');
