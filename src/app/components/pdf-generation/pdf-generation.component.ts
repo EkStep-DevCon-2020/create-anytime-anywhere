@@ -223,8 +223,8 @@ export class PdfGenerationComponent implements OnInit {
     return new Blob([str], {type: 'text/html'});
   }
 
-  openContent() {
-    chrome.tabs.create({ url: 'https://devcon.sunbirded.org/play/content/do_112959019966021632169?contentType=Resource' });
+  openContent(url) {
+    chrome.tabs.create({ url: url });
   }
 
 }
