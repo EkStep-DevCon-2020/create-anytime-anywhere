@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Sunbird",
+  "name": "Contribute a new content",
   "version": "0.1",
   "description": "Create content on the fly",
   "content_scripts": [
@@ -33,7 +33,7 @@
   // },
   "browser_action": {
     "default_popup": "index.html",
-    "default_icon": "assets/icon-new.png"
+    "default_icon": "assets/logo_bw.png"
   },
   "background": {
     "scripts": [
