@@ -1,8 +1,8 @@
-<div style="text-align: center;">
+<div style="text-align: center; padding: 10px;">
     <button *ngIf="!isLoading" class="ui primary button" (click)="read()">Create content</button>
 </div>
 
-<div *ngIf="!isLoading" [innerHTML]="parsedContent.content"></div>
+<div *ngIf="!isLoading" [innerHTML]="parsedContent.content" id="html-2-pdfwrapper"></div>
 
 <div *ngIf="successMsgs">
     <h3>{{successMsgs.title}}</h3>
