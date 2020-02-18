@@ -1,0 +1,9 @@
+.select-div{
+    padding: 10px;
+    text-align: center;
+}
+.select-div select{
+    width: 90%;
+    height: 30px;
+    
+}

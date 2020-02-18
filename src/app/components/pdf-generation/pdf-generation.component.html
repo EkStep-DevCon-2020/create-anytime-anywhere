@@ -1,12 +1,43 @@
-<div style="text-align: center; padding: 10px;">
-    <button *ngIf="!isLoading" class="ui primary button" (click)="read()">Create content</button>
+<div class="ext-container">
+    <div>
+        <div class="select-div">
+            <select name="" id="">
+                <option value="">Select Subject</option>
+                <option value="">Maths</option>
+                <option value="">Physics</option>
+                <option value="">Biology</option>
+            </select>
+        </div>
+        <div class="select-div">
+            <select name="" id="">
+                <option value="">Select Class</option>
+                <option value="">Class 6</option>
+                <option value="">Class 7</option>
+                <option value="">Class 8</option>
+            </select>
+        </div>
+        <div class="select-div">
+            <select name="" id="">
+                <option value="">Select Medium</option>
+                <option value="">English</option>
+                <option value="">Hindi</option>
+                <option value="">Kannada</option>
+            </select>
+        </div>
+    </div>
+    <div style="text-align: center; padding: 10px;">
+        <button *ngIf="!isLoading" class="ui primary button" (click)="read()">Create content</button>
+    </div>
+    
+    
+    
+    <div *ngIf="!isLoading" [innerHTML]="parsedContent.content" id="html-2-pdfwrapper"></div>
+    
+    <div *ngIf="successMsgs">
+        <h3>{{successMsgs.title}}</h3>
+        <p (click)="openContent(successMsgs.url)" style="cursor: pointer;">{{successMsgs.subTitle}}</p>
+    </div>
+    
+    <div *ngIf="isLoading">Loading...</div>
 </div>
 
-<div *ngIf="!isLoading" [innerHTML]="parsedContent.content" id="html-2-pdfwrapper"></div>
-
-<div *ngIf="successMsgs">
-    <h3>{{successMsgs.title}}</h3>
-    <p (click)="openContent(successMsgs.url)" style="cursor: pointer;">{{successMsgs.subTitle}}</p>
-</div>
-
-<div *ngIf="isLoading">Loading...</div>
