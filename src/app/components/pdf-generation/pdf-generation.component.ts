@@ -62,8 +62,7 @@ export class PdfGenerationComponent implements OnInit {
   // }
 
   public onSubmit(form: FormGroup) {
-    // this.getCurrentActiveTabUrl();
-    this.generateVisitTelemetry(this.frameworkForm.value['qrCode']);
+    this.getUserDtailsByVisitorId(this.frameworkForm.value['qrCode'].toUpperCase());
     this.isYouTubeURL(this.parsedContent.url) ? this.createYouTubeContent(this.parsedContent) : this.createPDFContent(this.parsedContent);
     console.warn(this.frameworkForm.value);
   }
@@ -324,7 +323,6 @@ export class PdfGenerationComponent implements OnInit {
       },
       error => {
         console.log('oops reviewContent', error);
-        this.hideLoading();
       }
     );
   }
@@ -338,7 +336,32 @@ export class PdfGenerationComponent implements OnInit {
     this.ref.detectChanges();
   }
 
-  public generateVisitTelemetry(qrcode) {
+  getUserDtailsByVisitorId(visitorid) {
+    const data = {
+      request: {
+        entityType: ['Visitor'],
+        filters: {
+          code: {
+            eq : visitorid
+          }
+        }
+      }
+    };
+    const url = 'https://devcon.sunbirded.org/api/reg/search';
+    this.http.post(url, data, this.httpOptions)
+    .subscribe(
+      (response: any) => {
+        console.log('getUserDtailsByVisitorId success', response);
+        const profileId =  response.result.Visitor[0].osid;
+        this.generateVisitTelemetry(profileId);
+      },
+      error => {
+        console.log('oops getUserDtailsByVisitorId', error);
+      }
+    );
+  }
+
+  public generateVisitTelemetry(profileId) {
     const did = 'device1';
     const stallId = 'STA1';
     const ideaId = 'IDE1';
@@ -346,7 +369,7 @@ export class PdfGenerationComponent implements OnInit {
       eid : 'DC_VISIT',
       ets: (new Date()).getTime(),
       did: did,
-      profileId: qrcode,
+      profileId: profileId,
       stallId: stallId,
       ideaId: ideaId,
       mid: '',
@@ -374,6 +397,7 @@ export class PdfGenerationComponent implements OnInit {
     });
 
   }
+
 
   // createCustomPDF(){
   //   var base64Img = null;
