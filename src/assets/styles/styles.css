@@ -1,8 +1,10 @@
 /* You can add global styles to this file, and also import other style files */
+body, html {
+  height: auto !important;
+}
 body {
   width: 250px;
-  background: rgb(255,133,3);
-  background: linear-gradient(347deg, rgba(255,133,3,1) 0%, rgba(255,213,83,1) 100%);
+  background:white;
   color: #372918;
   cursor: default;
   text-shadow: 0 1px 0 rgba(255,255,255,0.5);
@@ -15,4 +17,8 @@ a {
 }
 img {
   border: 0;
+}
+
+.wrapper {
+  padding: 20px 10px;
 }

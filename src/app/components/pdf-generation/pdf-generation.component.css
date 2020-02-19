@@ -1,9 +1,16 @@
-.select-div{
-    padding: 10px;
-    text-align: center;
+
+sui-multi-select {
+    width: 100%;
+  }
+  
+.errorMsg {
+    font-size: 14px;
+    color:#9F3A38;
+    margin-top:2px;
 }
-.select-div select{
-    width: 90%;
-    height: 30px;
-    
+.suc-msg{
+  color: #008840;
+}
+.text-center{
+    text-align: center;
 }

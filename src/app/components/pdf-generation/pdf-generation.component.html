@@ -1,43 +1,183 @@
-<div class="ext-container">
-    <div>
-        <div class="select-div">
-            <select name="" id="">
-                <option value="">Select Subject</option>
-                <option value="">Maths</option>
-                <option value="">Physics</option>
-                <option value="">Biology</option>
-            </select>
+<div class="wrapper">
+    <div class="ui container">
+      <h5 class="text-center">Contribute new content</h5>
+    
+      <form
+        class="ui form"
+        [formGroup]="frameworkForm"
+        (ngSubmit)="onSubmit(frameworkForm)"
+      >
+        <div
+            class="field"
+            [ngClass]="
+                frameworkForm.get('qrCode').touched &&
+                frameworkForm.get('qrCode').errors?.required
+                ? 'error'
+                : 'success'
+            "
+            >
+            <label>QR Code</label>
+            <input type="text" class="selection" formControlName="qrCode">
+            <div
+                class="errorMsg"
+                *ngIf="
+                frameworkForm.get('qrCode').touched &&
+                frameworkForm.get('qrCode').errors?.required
+                "
+            >
+                Pelase enter QR Code
+            </div>
         </div>
-        <div class="select-div">
-            <select name="" id="">
-                <option value="">Select Class</option>
-                <option value="">Class 6</option>
-                <option value="">Class 7</option>
-                <option value="">Class 8</option>
-            </select>
+        <div
+            class="field"
+            [ngClass]="
+                frameworkForm.get('name').touched &&
+                frameworkForm.get('name').errors?.required
+                ? 'error'
+                : 'success'
+            "
+            >
+            <label>Name</label>
+            <input type="text" class="selection" formControlName="name">
+            <div
+                class="errorMsg"
+                *ngIf="
+                frameworkForm.get('name').touched &&
+                frameworkForm.get('name').errors?.required
+                "
+            >
+                Pelase enter name of content
+            </div>
         </div>
-        <div class="select-div">
-            <select name="" id="">
-                <option value="">Select Medium</option>
-                <option value="">English</option>
-                <option value="">Hindi</option>
-                <option value="">Kannada</option>
-            </select>
+        <div
+          class="field"
+          [ngClass]="
+            frameworkForm.get('board').touched &&
+            frameworkForm.get('board').errors?.required
+              ? 'error'
+              : 'success'
+          "
+        >
+          <label>Board</label>
+          <sui-select class="selection" formControlName="board">
+            <sui-select-option
+              *ngFor="let o of board"
+              [value]="o"
+            ></sui-select-option>
+          </sui-select>
+          <div
+            class="errorMsg"
+            *ngIf="
+              frameworkForm.get('board').touched &&
+              frameworkForm.get('board').errors?.required
+            "
+          >
+            Pelase select board
+          </div>
         </div>
+        <div
+          class="field"
+          [ngClass]="
+            frameworkForm.get('medium').touched &&
+            frameworkForm.get('medium').errors?.required
+              ? 'error'
+              : 'success'
+          "
+        >
+          <label>Medium</label>
+          <sui-multi-select class="selection" formControlName="medium">
+            <sui-select-option
+              *ngFor="let o of medium"
+              [value]="o"
+            ></sui-select-option>
+          </sui-multi-select>
+          <div
+            class="errorMsg"
+            *ngIf="
+              frameworkForm.get('medium').touched &&
+              frameworkForm.get('medium').errors?.required
+            "
+          >
+            Pelase select medium
+          </div>
+        </div>
+        <div
+          class="field"
+          [ngClass]="
+            frameworkForm.get('gradeLevel').touched &&
+            frameworkForm.get('gradeLevel').errors?.required
+              ? 'error'
+              : 'success'
+          "
+        >
+          <label>Grade</label>
+          <sui-multi-select class="selection" formControlName="gradeLevel">
+            <sui-select-option
+              *ngFor="let o of gradeLevel"
+              [value]="o"
+            ></sui-select-option>
+          </sui-multi-select>
+          <div
+            class="errorMsg"
+            *ngIf="
+              frameworkForm.get('gradeLevel').touched &&
+              frameworkForm.get('gradeLevel').errors?.required
+            "
+          >
+            Pelase select grade
+          </div>
+        </div>
+        <div
+          class="field"
+          [ngClass]="
+            frameworkForm.get('subject').touched &&
+            frameworkForm.get('subject').errors?.required
+              ? 'error'
+              : 'success'
+          "
+        >
+          <label>Subject</label>
+          <sui-multi-select class="selection" formControlName="subject">
+            <sui-select-option
+              *ngFor="let o of subject"
+              [value]="o"
+            ></sui-select-option>
+          </sui-multi-select>
+          <div
+            class="errorMsg"
+            *ngIf="
+              frameworkForm.get('subject').touched &&
+              frameworkForm.get('subject').errors?.required
+            "
+          >
+            Pelase select subject
+          </div>
+        </div>
+        <!-- <button class="ui button" >
+          Submit
+        </button> -->
+    
+        <div style="text-align: center; padding: 10px;">
+          <button *ngIf="!isLoading" class="ui primary button" type="submit" (click)="read()"
+          [disabled]="!frameworkForm.valid">
+            Create content
+          </button>
+        </div>
+      </form>
+    
+      <div
+      *ngIf="!isLoading"
+      [innerHTML]="parsedContent?.content"
+      id="html-2-pdfwrapper"
+        >
     </div>
-    <div style="text-align: center; padding: 10px;">
-        <button *ngIf="!isLoading" class="ui primary button" (click)="read()">Create content</button>
-    </div>
-    
-    
-    
-    <div *ngIf="!isLoading" [innerHTML]="parsedContent.content" id="html-2-pdfwrapper"></div>
     
     <div *ngIf="successMsgs">
-        <h3>{{successMsgs.title}}</h3>
-        <p (click)="openContent(successMsgs.url)" style="cursor: pointer;">{{successMsgs.subTitle}}</p>
+        <h5 class="suc-msg">{{ successMsgs.title }}</h5>
+        <p (click)="openContent(successMsgs.url)" style="cursor: pointer;color:blue;">
+        {{ successMsgs.subTitle }}
+        </p>
     </div>
-    
-    <div *ngIf="isLoading">Loading...</div>
 </div>
-
+<div *ngIf="isLoading">Creating Content...</div>
+</div>

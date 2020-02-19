@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import Mercury from '@postlight/mercury-parser';
 import { HttpClient, HttpHeaders } from '@angular/common/http'
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-pdf-generation',
@@ -9,6 +9,11 @@ import { FormBuilder, FormGroup } from '@angular/forms';
   styleUrls: ['./pdf-generation.component.css']
 })
 export class PdfGenerationComponent implements OnInit {
+  frameworkForm: FormGroup;
+  public board = ['NCERT'];
+  public medium = ['English'];
+  public gradeLevel = ['Class 6',  'Class 7', 'Class 8'];
+  public subject = ['Science'];
 
   private readonly createContentUrl = 'https://devcon.sunbirded.org/api/private/content/v3/create';
   private readonly presignedUrl = 'https://devcon.sunbirded.org/api/private/content/v3/upload/url'
@@ -17,7 +22,7 @@ export class PdfGenerationComponent implements OnInit {
     headers: new HttpHeaders({
       'Content-Type':  'application/json',
       // tslint:disable-next-line:max-line-length
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyZWU4YTgxNDNiZWE0NDU4YjQxMjcyNTU5ZDBhNTczMiJ9.7m4mIUaiPwh_o9cvJuyZuGrOdkfh0Nm0E_25Cl21kxE',
+      'Authorization': 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiIyZWU4YTgxNDNiZWE0NDU4YjQxMjcyNTU5ZDBhNTczMiJ9.7m4mIUaiPwh_o9cvJuyZuGrOdkfh0Nm0E_25Cl21kxE',
       'user-id': 'mahesh',
       'X-Channel-Id': 'in.ekstep'
     })
@@ -30,15 +35,32 @@ export class PdfGenerationComponent implements OnInit {
   public successMsgs;
   constructor(
     private ref: ChangeDetectorRef,
-    private http: HttpClient
+    private http: HttpClient,
+    private fb: FormBuilder
   ) { }
 
   ngOnInit() {
+    this.frameworkForm = this.fb.group({
+      qrCode: ['', Validators.required],
+      name: ['', Validators.required],
+      board: ['', Validators.required],
+      medium: ['', Validators.required],
+      gradeLevel: ['', Validators.required],
+      subject: ['', Validators.required]
+    });
+    this.getCurrentActiveTabUrl();
   }
 
-  public read() {
+  // onSubmit(form: FormGroup) {
+  //   console.log('Valid?', form.valid);
+  //   console.warn(this.frameworkForm.value);
+  // }
+
+  public onSubmit(form: FormGroup) {
     this.isLoading = true;
-    this.getCurrentActiveTabUrl();
+    // this.getCurrentActiveTabUrl();
+    this.isYouTubeURL(this.parsedContent.url) ? this.createYouTubeContent(this.parsedContent) : this.createPDFContent(this.parsedContent);
+    console.warn(this.frameworkForm.value);
   }
 
   public getCurrentActiveTabUrl() {
@@ -46,7 +68,6 @@ export class PdfGenerationComponent implements OnInit {
     chrome.tabs.query({active: true, currentWindow: true}, (tabs: any)  => {
       url = tabs[0].url;
       this.getReadableContent(url);
-      // this.isYouTubeURL(url) ? this.createYouTubeContent(url) : this.getReadableContent(url);
     });
   }
 
@@ -66,8 +87,9 @@ export class PdfGenerationComponent implements OnInit {
   public setContent(result) {
     this.parsedContent = result;
     this.isLoading = false;
+    this.frameworkForm.controls['name'].setValue(result.title);
     this.ref.detectChanges();
-    this.isYouTubeURL(result.url) ? this.createYouTubeContent(result) : this.createPDFContent(result);
+    // this.isYouTubeURL(result.url) ? this.createYouTubeContent(result) : this.createPDFContent(result);
   }
 
 
@@ -114,9 +136,14 @@ export class PdfGenerationComponent implements OnInit {
               url: `https://devcon.sunbirded.org/play/content/${data['result'].node_id}?contentType=Resource`
             };
             console.log('successMsgs', this.successMsgs);
+            this.isLoading = false;
             this.ref.detectChanges();
           },
-          error => console.log('oops createYouTubeContent', error)
+          error => {
+            this.isLoading = false;
+            this.ref.detectChanges();
+            console.log('oops createYouTubeContent', error);
+          }
         );
     },
     error => {
@@ -145,11 +172,14 @@ export class PdfGenerationComponent implements OnInit {
     const data = {
       request: {
         content: {
-          name: title,
           contentType: 'Resource',
+          resourceType : 'Learn',
+          author: 'Sunbird User',
           mediaType: 'content',
           code: 'kp.test.res.1',
-          mimeType: 'application/pdf'
+          mimeType: mimeType,
+          framework: 'DevCon-NCERT',
+          ...this.frameworkForm.value
         }
       }
     };
@@ -163,7 +193,7 @@ export class PdfGenerationComponent implements OnInit {
     const data = {
       request: {
         content: {
-          fileName: this.parsedContent.title+'.html'
+          fileName: this.parsedContent.title + '.html'
         }
       }
     };
@@ -204,9 +234,9 @@ export class PdfGenerationComponent implements OnInit {
     );
   }
 
-  getConvertedPdfUrl(fileUrl, contentId){
+  getConvertedPdfUrl(fileUrl, contentId) {
     console.log('fileUrl', fileUrl);
-    const url = "http://11.2.6.6/print/v1/print/preview/generate";
+    const url = 'http://11.2.6.6/print/v1/print/preview/generate';
     // let params = new URLSearchParams();
     // params.set('fileUrl', fileUrl);
     const httpOptions = {
@@ -217,7 +247,7 @@ export class PdfGenerationComponent implements OnInit {
     };
     const data = new FormData();
     data.append('fileUrl', fileUrl);
-    
+
     // this.http.post(url, '', params, httpOptions)
     this.http.post(url, data, httpOptions)
     .subscribe(
@@ -248,13 +278,13 @@ export class PdfGenerationComponent implements OnInit {
       })
     };
     const url = this.uploadUrl + '/' + contentId;
-    
+
     this.http.post(url, data, httpOptions)
     .subscribe(
       (response: any) => {
         console.log('updateContentWithURL success', response);
         this.successMsgs = {
-          title : 'content created successfully',
+          title : 'Content created successfully',
           subTitle: 'Click here to view content',
           url: `https://devcon.sunbirded.org/play/content/${response['result'].node_id}?contentType=Resource`
         };
