@@ -1,6 +1,6 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import Mercury from '@postlight/mercury-parser';
-import { HttpClient, HttpHeaders } from '@angular/common/http'
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import * as Md5 from 'md5';
 import { UUID } from 'angular2-uuid';
@@ -20,7 +20,7 @@ export class PdfGenerationComponent implements OnInit {
 
   baseUrl = 'https://devcon.sunbirded.org/';
   private readonly createContentUrl = 'https://devcon.sunbirded.org/action/content/v3/create';
-  private readonly presignedUrl = 'https://devcon.sunbirded.org/action/content/v3/upload/url'
+  private readonly presignedUrl = 'https://devcon.sunbirded.org/api/private/content/v3/upload/url'
   private readonly uploadUrl = 'https://devcon.sunbirded.org/action/content/v3/upload'
   private readonly httpOptions = {
     headers: new HttpHeaders({
@@ -245,23 +245,35 @@ export class PdfGenerationComponent implements OnInit {
       }
     );
   }
-
+  // var request = require('request');
+  // var options = {
+  //   'method': 'POST',
+  //   'url': 'http://11.2.6.6/print/v1/print/preview/generate?fileUrl=https://devcon2020.blob.core.windows.net/content/content/assets/do_1129591534353612801103/bjp-considers-right-pick-for-leader-of-the-opposition-post-in-delhi.html',
+  //   'headers': {
+  //     'Content-Type': 'application/json'
+  //   }
+  // };
+  // request(options, function (error, response) {
+  //   if (error) throw new Error(error);
+  //   console.log(response.body);
+  // });
   getConvertedPdfUrl(fileUrl, contentId) {
     console.log('fileUrl', fileUrl);
-    const url = 'http://11.2.6.6/print/v1/print/preview/generate';
+    // const url = 'http://11.2.6.6/print/v1/print/preview/generate';
+    // tslint:disable-next-line:max-line-length
+    const url = `http://11.2.6.6/print/v1/print/preview/generate?fileUrl=${fileUrl}`;
     // let params = new URLSearchParams();
     // params.set('fileUrl', fileUrl);
-    const httpOptions = {
-      headers: new HttpHeaders({
-        'contentType': 'application/json',
-      },
-      )
-    };
-    const data = new FormData();
-    data.append('fileUrl', fileUrl);
+    let params = new HttpParams();
+    params =  params.append('fileUrl', fileUrl);
+    const headers = {
+        'Content-Type': 'application/json',
+      }
+    // const data = new FormData();
+    // data.append('fileUrl', fileUrl);
 
     // this.http.post(url, '', params, httpOptions)
-    this.http.post(url, data, httpOptions)
+    this.http.post(url, '', {headers})
     .subscribe(
       (response: any) => {
         console.log('getConvertedPdfUrl success', response);
@@ -370,7 +382,7 @@ export class PdfGenerationComponent implements OnInit {
   //   };
   //   var pdf = new jsPDF('p', 'pt', 'a4');
   //   pdf.setFontSize(18);
-  //   pdf.fromHTML(document.getElementById('html-2-pdfwrapper'), 
+  //   pdf.fromHTML(document.getElementById('html-2-pdfwrapper'),
   //     margins.left, // x coord
   //     margins.top,
   //     {
@@ -378,13 +390,13 @@ export class PdfGenerationComponent implements OnInit {
   //       width: margins.width// max width of content on PDF
   //     },function(dispose) {
   //       // headerFooterFormatting(pdf)
-  //     }, 
+  //     },
   //     margins);
-      
+
   //   var iframe = document.createElement('iframe');
   //   iframe.setAttribute('style','position:absolute;right:0; top:0; bottom:0; height:100%; width:650px; padding:20px;');
   //   document.body.appendChild(iframe);
-    
+
   //   iframe.src = pdf.output('datauristring');
   //   return pdf.output('blob');
   // }
