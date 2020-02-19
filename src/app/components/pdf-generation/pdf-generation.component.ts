@@ -57,7 +57,6 @@ export class PdfGenerationComponent implements OnInit {
   // }
 
   public onSubmit(form: FormGroup) {
-    this.isLoading = true;
     // this.getCurrentActiveTabUrl();
     this.isYouTubeURL(this.parsedContent.url) ? this.createYouTubeContent(this.parsedContent) : this.createPDFContent(this.parsedContent);
     console.warn(this.frameworkForm.value);
@@ -102,6 +101,7 @@ export class PdfGenerationComponent implements OnInit {
 }
 
   createYouTubeContent(result) {
+    this.isLoading = true;
     const createdContent = this.createContent(result.title, 'video/x-youtube');
     createdContent.subscribe(response => {
       console.log('success createContent', response);
@@ -136,12 +136,10 @@ export class PdfGenerationComponent implements OnInit {
               url: `https://devcon.sunbirded.org/play/content/${data['result'].node_id}?contentType=Resource`
             };
             console.log('successMsgs', this.successMsgs);
-            this.isLoading = false;
-            this.ref.detectChanges();
+            this.hideLoading();
           },
           error => {
-            this.isLoading = false;
-            this.ref.detectChanges();
+            this.hideLoading();
             console.log('oops createYouTubeContent', error);
           }
         );
@@ -155,14 +153,15 @@ export class PdfGenerationComponent implements OnInit {
   }
 
   private createPDFContent(result) {
-    const createdContent = this.createContent(result.title, 'text/html');
+    this.isLoading = true;
+    const createdContent = this.createContent(result.title, 'application/pdf');
 
     createdContent.subscribe(response => {
       console.log('success createContent', response);
       this.getPresignedUrl(response);
-      // this.createYouTubeContent(resp);
     },
     error => {
+      this.hideLoading();
       console.log('oops', error);
       return error;
     });
@@ -205,7 +204,10 @@ export class PdfGenerationComponent implements OnInit {
         console.log('getPresignedUrl success', response);
         this.uploadFile(response);
       },
-      error => console.log('oops getPresignedUrl', error)
+      error => {
+        this.hideLoading();
+        console.log('oops getPresignedUrl', error)
+      }
     );
   }
 
@@ -226,11 +228,16 @@ export class PdfGenerationComponent implements OnInit {
     .subscribe(
       data => {
         console.log('uploadFile success', data);
+        this.isLoading = false;
+        this.ref.detectChanges();
         const fileUrl = `${res['result'].pre_signed_url.split('?')[0]}`;
         this.getConvertedPdfUrl(fileUrl, res['result'].content_id);
         // this.updateContentWithPDFURL(fileUrl, res['result'].content_id);
       },
-      error => console.log('oops uploadFile', error)
+      error => {
+        console.log('oops uploadFile', error);
+        this.hideLoading();
+      }
     );
   }
 
@@ -255,7 +262,10 @@ export class PdfGenerationComponent implements OnInit {
         console.log('getConvertedPdfUrl success', response);
         this.updateContentWithPDFURL(response['result'].pdfUrl, contentId);
       },
-      error => console.log('oops getConvertedPdfUrl', error)
+      error => {
+        console.log('oops getConvertedPdfUrl', error);
+        this.hideLoading();
+      }
     );
   }
 
@@ -283,6 +293,7 @@ export class PdfGenerationComponent implements OnInit {
     .subscribe(
       (response: any) => {
         console.log('updateContentWithURL success', response);
+        this.hideLoading();
         this.successMsgs = {
           title : 'Content created successfully',
           subTitle: 'Click here to view content',
@@ -291,12 +302,20 @@ export class PdfGenerationComponent implements OnInit {
         console.log('successMsgs', this.successMsgs);
 
       },
-      error => console.log('oops updateContentWithURL', error)
+      error => {
+        console.log('oops updateContentWithURL', error);
+        this.hideLoading();
+      }
     );
   }
 
   openContent(url) {
     chrome.tabs.create({ url: url });
+  }
+
+  hideLoading() {
+    this.isLoading = false;
+    this.ref.detectChanges();
   }
 
   // createCustomPDF(){
