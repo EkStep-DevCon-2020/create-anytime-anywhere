@@ -165,19 +165,17 @@
         </div>
       </form>
     
-      <div
-      *ngIf="!isLoading && successMsgs"
-      [innerHTML]="parsedContent?.content"
-      id="html-2-pdfwrapper"
-        >
-    </div>
-    
     <div *ngIf="successMsgs">
         <h5 class="suc-msg">{{ successMsgs.title }}</h5>
         <p (click)="openContent(successMsgs.url)" style="cursor: pointer;color:blue;">
         {{ successMsgs.subTitle }}
         </p>
     </div>
+    <div *ngIf="!isLoading && successMsgs">
+        <h3>{{parsedContent?.title}}</h3>
+        <div [innerHTML]="parsedContent?.content" id="html-2-pdfwrapper"></div>
+    </div>
+    
 </div>
 <div *ngIf="isLoading">Creating Content...</div>
 </div>
