@@ -16,12 +16,13 @@ export class PdfGenerationComponent implements OnInit {
   public medium = ['English'];
   public gradeLevel = ['Class 6',  'Class 7', 'Class 8'];
   public subject = ['Science'];
-  public showparsedContent = false;
+  public youTubeUrl = false;
 
   baseUrl = 'https://devcon.sunbirded.org/';
   private readonly createContentUrl = 'https://devcon.sunbirded.org/action/content/v3/create';
-  private readonly presignedUrl = 'https://devcon.sunbirded.org/api/private/content/v3/upload/url'
-  private readonly uploadUrl = 'https://devcon.sunbirded.org/action/content/v3/upload'
+  private readonly presignedUrl = 'https://devcon.sunbirded.org/api/private/content/v3/upload/url';
+  private readonly uploadUrl = 'https://devcon.sunbirded.org/action/content/v3/upload';
+  private readonly reviewUrl = 'https://devcon.sunbirded.org/api/private/content/v3/review';
   private readonly httpOptions = {
     headers: new HttpHeaders({
       'Content-Type':  'application/json',
@@ -106,6 +107,7 @@ export class PdfGenerationComponent implements OnInit {
 }
 
   createYouTubeContent(result) {
+    this.youTubeUrl = true;
     this.isLoading = true;
     const createdContent = this.createContent(result.title, 'video/x-youtube');
     createdContent.subscribe(response => {
@@ -141,6 +143,7 @@ export class PdfGenerationComponent implements OnInit {
               url: `https://devcon.sunbirded.org/play/content/${data['result'].node_id}?contentType=Resource`
             };
             console.log('successMsgs', this.successMsgs);
+            this.reviewContent(data['result'].node_id);
             this.hideLoading();
           },
           error => {
@@ -158,6 +161,7 @@ export class PdfGenerationComponent implements OnInit {
   }
 
   private createPDFContent(result) {
+    this.youTubeUrl = false;
     this.isLoading = true;
     const createdContent = this.createContent(result.title, 'application/pdf');
 
@@ -245,34 +249,18 @@ export class PdfGenerationComponent implements OnInit {
       }
     );
   }
-  // var request = require('request');
-  // var options = {
-  //   'method': 'POST',
-  //   'url': 'http://11.2.6.6/print/v1/print/preview/generate?fileUrl=https://devcon2020.blob.core.windows.net/content/content/assets/do_1129591534353612801103/bjp-considers-right-pick-for-leader-of-the-opposition-post-in-delhi.html',
-  //   'headers': {
-  //     'Content-Type': 'application/json'
-  //   }
-  // };
-  // request(options, function (error, response) {
-  //   if (error) throw new Error(error);
-  //   console.log(response.body);
-  // });
+  
   getConvertedPdfUrl(fileUrl, contentId) {
     console.log('fileUrl', fileUrl);
     // const url = 'http://11.2.6.6/print/v1/print/preview/generate';
     // tslint:disable-next-line:max-line-length
     const url = `http://11.2.6.6/print/v1/print/preview/generate?fileUrl=${fileUrl}`;
-    // let params = new URLSearchParams();
-    // params.set('fileUrl', fileUrl);
     let params = new HttpParams();
     params =  params.append('fileUrl', fileUrl);
     const headers = {
         'Content-Type': 'application/json',
-      }
-    // const data = new FormData();
-    // data.append('fileUrl', fileUrl);
+    };
 
-    // this.http.post(url, '', params, httpOptions)
     this.http.post(url, '', {headers})
     .subscribe(
       (response: any) => {
@@ -321,6 +309,21 @@ export class PdfGenerationComponent implements OnInit {
       },
       error => {
         console.log('oops updateContentWithURL', error);
+        this.hideLoading();
+      }
+    );
+  }
+
+  reviewContent(contentId) {
+    const url = `${this.reviewUrl}/${contentId}`;
+    const body = JSON.stringify({'request': {'content': {}}});
+    this.http.post(url, body, this.httpOptions)
+    .subscribe(
+      (response: any) => {
+        console.log('reviewContent success', response);
+      },
+      error => {
+        console.log('oops reviewContent', error);
         this.hideLoading();
       }
     );
