@@ -14,3 +14,6 @@ sui-multi-select {
 .text-center{
     text-align: center;
 }
+.all-caps{
+    text-transform: uppercase;
+}
