@@ -25,7 +25,9 @@
     "jquery": "^3.4.1",
     "ng2-semantic-ui": "^0.9.7",
     "rxjs": "~6.0.0",
-    "zone.js": "^0.8.26"
+    "zone.js": "^0.8.26",
+    "angular2-uuid": "^1.1.1",
+    "md5": "^2.2.1"
   },
   "devDependencies": {
     "@angular-builders/custom-webpack": "~7.4.3",

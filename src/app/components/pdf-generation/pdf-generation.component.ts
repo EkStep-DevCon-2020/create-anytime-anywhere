@@ -2,6 +2,8 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import Mercury from '@postlight/mercury-parser';
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
+import * as Md5 from 'md5';
+import { UUID } from 'angular2-uuid';
 
 @Component({
   selector: 'app-pdf-generation',
@@ -14,10 +16,12 @@ export class PdfGenerationComponent implements OnInit {
   public medium = ['English'];
   public gradeLevel = ['Class 6',  'Class 7', 'Class 8'];
   public subject = ['Science'];
+  public showparsedContent = false;
 
-  private readonly createContentUrl = 'https://devcon.sunbirded.org/api/private/content/v3/create';
-  private readonly presignedUrl = 'https://devcon.sunbirded.org/api/private/content/v3/upload/url'
-  private readonly uploadUrl = 'https://devcon.sunbirded.org/api/private/content/v3/upload'
+  baseUrl = 'https://devcon.sunbirded.org/';
+  private readonly createContentUrl = 'https://devcon.sunbirded.org/action/content/v3/create';
+  private readonly presignedUrl = 'https://devcon.sunbirded.org/action/content/v3/upload/url'
+  private readonly uploadUrl = 'https://devcon.sunbirded.org/action/content/v3/upload'
   private readonly httpOptions = {
     headers: new HttpHeaders({
       'Content-Type':  'application/json',
@@ -58,6 +62,7 @@ export class PdfGenerationComponent implements OnInit {
 
   public onSubmit(form: FormGroup) {
     // this.getCurrentActiveTabUrl();
+    this.generateVisitTelemetry(this.frameworkForm.value['qrCode']);
     this.isYouTubeURL(this.parsedContent.url) ? this.createYouTubeContent(this.parsedContent) : this.createPDFContent(this.parsedContent);
     console.warn(this.frameworkForm.value);
   }
@@ -316,6 +321,43 @@ export class PdfGenerationComponent implements OnInit {
   hideLoading() {
     this.isLoading = false;
     this.ref.detectChanges();
+  }
+
+  public generateVisitTelemetry(qrcode) {
+    const did = 'device1';
+    const stallId = 'STA1';
+    const ideaId = 'IDE1';
+    const visitTelemetry = {
+      eid : 'DC_VISIT',
+      ets: (new Date()).getTime(),
+      did: did,
+      profileId: qrcode,
+      stallId: stallId,
+      ideaId: ideaId,
+      mid: '',
+      edata: {}
+    };
+    visitTelemetry.mid = visitTelemetry.eid + ':' + Md5(JSON.stringify(visitTelemetry));
+    const request = {
+      url: `${this.baseUrl}content/data/v1/telemetry`,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: {
+        id: 'api.sunbird.telemetry',
+        ver: '3.0',
+        params: {
+          msgid: UUID.UUID()
+        },
+        ets: (new Date()).getTime(),
+        events: [visitTelemetry]
+      }
+    };
+
+    this.http.post(request.url, request.body, { headers: request.headers } ).pipe().subscribe((res) => {
+      console.log('response ', res);
+    });
+
   }
 
   // createCustomPDF(){
