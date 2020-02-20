@@ -66,7 +66,7 @@ export class PdfGenerationComponent implements OnInit {
     this.getUserDtailsByVisitorId(this.frameworkForm.value['qrCode'].toUpperCase()).subscribe(
       (response: any) => {
         console.log('getUserDtailsByVisitorId success', response);
-        this.profileId = response.result.Visitor[0] ? response.result.Visitor[0].osid : '';
+        this.profileId = response.result.Visitor[0] ? response.result.Visitor[0].osid : '1-314adecc-aa59-4ccc-9a0f-6e8b321b9e5b';
         this.generateVisitTelemetry(this.profileId);
         this.isYouTubeURL(this.parsedContent.url) ? this.createYouTubeContent(this.parsedContent) : this.createPDFContent(this.parsedContent);
       },
