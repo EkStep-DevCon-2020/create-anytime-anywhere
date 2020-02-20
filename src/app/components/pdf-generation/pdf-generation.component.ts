@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http'
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import * as Md5 from 'md5';
 import { UUID } from 'angular2-uuid';
+import {map, mergeMap} from 'rxjs/operators';
 
 @Component({
   selector: 'app-pdf-generation',
@@ -38,6 +39,10 @@ export class PdfGenerationComponent implements OnInit {
   public parsedContent: any;
   public isLoading: Boolean = false;
   public successMsgs;
+  profileId = '';
+  contentId = '';
+  contentName = '';
+
   constructor(
     private ref: ChangeDetectorRef,
     private http: HttpClient,
@@ -56,14 +61,21 @@ export class PdfGenerationComponent implements OnInit {
     this.getCurrentActiveTabUrl();
   }
 
-  // onSubmit(form: FormGroup) {
-  //   console.log('Valid?', form.valid);
-  //   console.warn(this.frameworkForm.value);
-  // }
 
   public onSubmit(form: FormGroup) {
-    this.getUserDtailsByVisitorId(this.frameworkForm.value['qrCode'].toUpperCase());
-    this.isYouTubeURL(this.parsedContent.url) ? this.createYouTubeContent(this.parsedContent) : this.createPDFContent(this.parsedContent);
+    this.getUserDtailsByVisitorId(this.frameworkForm.value['qrCode'].toUpperCase()).subscribe(
+      (response: any) => {
+        console.log('getUserDtailsByVisitorId success', response);
+        this.profileId = response.result.Visitor[0] ? response.result.Visitor[0].osid : '';
+        this.generateVisitTelemetry(this.profileId);
+        this.isYouTubeURL(this.parsedContent.url) ? this.createYouTubeContent(this.parsedContent) : this.createPDFContent(this.parsedContent);
+      },
+      error => {
+        console.log('oops getUserDtailsByVisitorId', error);
+        this.isYouTubeURL(this.parsedContent.url) ? this.createYouTubeContent(this.parsedContent) : this.createPDFContent(this.parsedContent);
+      }
+    );
+    // this.isYouTubeURL(this.parsedContent.url) ? this.createYouTubeContent(this.parsedContent) : this.createPDFContent(this.parsedContent);
     console.warn(this.frameworkForm.value);
   }
 
@@ -114,6 +126,7 @@ export class PdfGenerationComponent implements OnInit {
       // this.getPresignedUrl(resp);
       // this.createYouTubeContent(resp);
         const contentId = response['result'].node_id;
+        this.contentId = response['result'].node_id;
         const formData = new FormData();
         formData.append('fileUrl', result.url);
         formData.append('mimeType', 'video/x-youtube');
@@ -143,6 +156,7 @@ export class PdfGenerationComponent implements OnInit {
             };
             console.log('successMsgs', this.successMsgs);
             this.reviewContent(data['result'].node_id);
+            this.generateContentCreateTelemetry();
             this.hideLoading();
           },
           error => {
@@ -176,6 +190,15 @@ export class PdfGenerationComponent implements OnInit {
   }
 
   private createContent(title, mimeType) {
+
+    const contentMeta = {
+      createdBy: this.profileId,
+      name: this.frameworkForm.value.name,
+      board: this.frameworkForm.value.board,
+      medium: this.frameworkForm.value.medium,
+      gradeLevel: this.frameworkForm.value.gradeLevel,
+      subject: this.frameworkForm.value.subject
+    };
     const data = {
       request: {
         content: {
@@ -186,10 +209,11 @@ export class PdfGenerationComponent implements OnInit {
           code: 'kp.test.res.1',
           mimeType: mimeType,
           framework: 'DevCon-NCERT',
-          ...this.frameworkForm.value
+          ...contentMeta
         }
       }
     };
+    this.contentName = this.frameworkForm.value['name'];
     return this.http.post(this.createContentUrl, data, this.httpOptions);
   }
 
@@ -303,6 +327,7 @@ export class PdfGenerationComponent implements OnInit {
           subTitle: 'Click here to view content',
           url: `https://devcon.sunbirded.org/play/content/${response['result'].node_id}?contentType=Resource`
         };
+        this.generateContentCreateTelemetry();
         console.log('successMsgs', this.successMsgs);
 
       },
@@ -348,12 +373,37 @@ export class PdfGenerationComponent implements OnInit {
       }
     };
     const url = 'https://devcon.sunbirded.org/api/reg/search';
+    return this.http.post(url, data, this.httpOptions);
+    // .subscribe(
+    //   (response: any) => {
+    //     console.log('getUserDtailsByVisitorId success', response);
+    //     this.profileId =  response.result.Visitor[0].osid;
+    //     this.generateVisitTelemetry(this.profileId);
+    //   },
+    //   error => {
+    //     console.log('oops getUserDtailsByVisitorId', error);
+    //   }
+    // );
+  }
+
+  getUserDtailsByVisitorId1(visitorid) {
+    const data = {
+      request: {
+        entityType: ['Visitor'],
+        filters: {
+          code: {
+            eq : visitorid
+          }
+        }
+      }
+    };
+    const url = 'https://devcon.sunbirded.org/api/reg/search';
     this.http.post(url, data, this.httpOptions)
     .subscribe(
       (response: any) => {
         console.log('getUserDtailsByVisitorId success', response);
-        const profileId =  response.result.Visitor[0].osid;
-        this.generateVisitTelemetry(profileId);
+        this.profileId =  response.result.Visitor[0].osid;
+        this.generateVisitTelemetry(this.profileId);
       },
       error => {
         console.log('oops getUserDtailsByVisitorId', error);
@@ -364,7 +414,7 @@ export class PdfGenerationComponent implements OnInit {
   public generateVisitTelemetry(profileId) {
     const did = 'device1';
     const stallId = 'STA1';
-    const ideaId = 'IDE1';
+    const ideaId = 'IDE6';
     const visitTelemetry = {
       eid : 'DC_VISIT',
       ets: (new Date()).getTime(),
@@ -398,6 +448,45 @@ export class PdfGenerationComponent implements OnInit {
 
   }
 
+  public generateContentCreateTelemetry() {
+    const did = 'device1';
+    const stallId = 'STA1';
+    const ideaId = 'IDE6';
+    const visitTelemetry = {
+      eid : 'DC_ENGAGEMENT',
+      ets: (new Date()).getTime(),
+      did: did,
+      profileId: this.profileId,
+      stallId: stallId,
+      ideaId: ideaId,
+      mid: '',
+      edata: {},
+      contentId: this.contentId,
+      contentType: 'Resource',
+      contentName: this.contentName,
+    };
+    visitTelemetry.mid = visitTelemetry.eid + ':' + Md5(JSON.stringify(visitTelemetry));
+    const request = {
+      url: `${this.baseUrl}content/data/v1/telemetry`,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: {
+        id: 'api.sunbird.telemetry',
+        ver: '3.0',
+        params: {
+          msgid: UUID.UUID()
+        },
+        ets: (new Date()).getTime(),
+        events: [visitTelemetry]
+      }
+    };
+
+    this.http.post(request.url, request.body, { headers: request.headers } ).pipe().subscribe((res) => {
+      console.log('response ', res);
+    });
+
+  }
 
   // createCustomPDF(){
   //   var base64Img = null;
